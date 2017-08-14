@@ -1,0 +1,13 @@
+*.iml
+*.project
+.DS_Store/
+.idea/
+.sass-cache/
+.settings/
+target/
+node_modules/
+jspm_packages/
+npm-debug.log
+src/js/templates/tmp/
+src/js/templates/_compiled/
+test/unit/coverage/
