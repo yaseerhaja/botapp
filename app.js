@@ -15,8 +15,8 @@ server.get(/^\/?.*/, restify.plugins.serveStatic({
 
 // Create chat connector for communicating with the Bot Framework Service
 var connector = new builder.ChatConnector({
-    appId: process.env.MICROSOFT_APP_ID,
-    appPassword: process.env.MICROSOFT_APP_PASSWORD
+    appId: 'edff87eb-a6c3-4dda-b778-41011657797d',//process.env.MICROSOFT_APP_ID,
+    appPassword: 'qW9XwmzZ42jibVkhois6sUj' //process.env.MICROSOFT_APP_PASSWORD
 });
 
 // Listen for messages from users 
@@ -136,7 +136,7 @@ bot.dialog('init',[
 // Show Start up Message.
 bot.dialog('greetings', [
     function (session) {
-        session.send('Welcome to KLM Bot Service. Here you can find All Server related information...');
+        session.send('Welcome to Bot Service. Here you can find All Server related information...');
         session.endDialog();
     }
 ]);
