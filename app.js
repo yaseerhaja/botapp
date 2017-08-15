@@ -1,8 +1,7 @@
-require('dotenv-extended').load();
-
-var restify = require('restify'),
-	//builder = require('botbuilder');
+var restify = require('restify'),	
 	builder = require('./core');
+
+    //builder = require('botbuilder');
 
 // Setup Restify Server
 var server = restify.createServer();
@@ -32,14 +31,24 @@ var bot = new builder.UniversalBot(connector, function(session){
 		session.userData.selectionType = text.startsWith("~S:") ? 'server' : 'lan';
 
 		text = text.split(':')[1];
-		
-		name = text.split(' ')[0];
-		action = text.split(' ')[1];
 
-		session.userData.serverName = name;
-		session.userData.action = action;
+        if(text.trim() !== ''){
+            name = text.split(' ')[0] || '';
+            action = text.split(' ')[1] || '';
 
-		session.beginDialog(session.userData.selectionType === 'server' ? 'serverAction' : 'lanAction');		
+            if(name.trim()!== '' && action.trim()!== ''){
+                session.userData.serverName = name;
+                session.userData.action = action;
+
+                session.beginDialog(session.userData.selectionType === 'server' ? 'serverAction' : 'lanAction');
+            }
+            else{
+                session.send('Sorry!! I cant get your query. I need Server Name and Action to get you Details.. Type `shortcut` see the how to use command.');
+            }            
+        }
+        else{
+            session.send('Sorry!! I cant get your query. Please type `shortcut` to see list of action you can perform in bot..');
+        }			
 	}
 	else{
 		session.beginDialog('init');
@@ -93,13 +102,19 @@ var menuItems = {
 				}
 			}
 		},
-		"Status of Server": {
-	        item: "status"
+		"Status": {
+	        item: "status",
+            data:{
+                "KL12345": {
+                    name: "KL12345",
+                    state: "Started"
+                }
+            }
 	    },
-	    "Start Server": {
+	    "Start": {
 	        item: "start"
 	    },
-	    "Stop Server": {
+	    "Stop": {
 	    	item: "stop"
 	    }
 	};
@@ -223,6 +238,7 @@ bot.dialog('mainMenuUX', function (session) {
 
 // Add dialog for displaying list of shortcut available.
 bot.dialog('shortcut', function (session) {
+    session.endDialog();
     session.send('Use below shortcut for quick access\n\n	Server: ~S:<ServerName> <Details|Status|Start|Stop>\n	Lan: ~L:<LanName> <Details|Status>');
 }).triggerAction({ matches: /^(shortcut|keys)/i });
 
@@ -236,11 +252,52 @@ bot.dialog('serverAction', function (session) {
     		text = 'Details:\n\n	Name: '+details.name+'\n	Type: '+details.type+'\n	OutageDependency:'+details.OutageDependency+'\n	SubType: '+ details.SubType+'\n	Location: '+ details.Location;        
     
     		session.send(text);
-    	}
+            session.endDialog();
+    	}        
     	else{
     		session.send('We cant get details for Server : %s you looking for', name);
         	session.endDialog();
     	}
+    }
+    else if(action === "Status"){
+        var details = server.Status.data[name];
+        if(typeof details !== 'undefined'){
+            text = 'Details:\n\n    Name: '+details.name+'\n    Status: '+details.state;        
+    
+            session.send(text);
+            session.endDialog();
+        }        
+        else{
+            session.send('We cant get Status for Server : %s you looking for', name);
+            session.endDialog();
+        }
+    }
+    else if(action === "Start"){
+        var details = server.Status.data[name];        
+        if(typeof details !== 'undefined'){
+            
+            details.state = "Started";              
+    
+            session.send('Server %s is Started', name);
+            session.endDialog();
+        }        
+        else{
+            session.send('We cant Start the  Server : %s', name);
+            session.endDialog();
+        }
+    }
+    else if(action === "Stop"){
+        var details = server.Status.data[name];
+        if(typeof details !== 'undefined'){
+            details.state = "Stopped";              
+    
+            session.send('Server %s is Stopped', name);
+            session.endDialog();
+        }        
+        else{
+            session.send('We cant Stop the  Server : %s', name);
+            session.endDialog();
+        }
     }
     else{
     	session.endDialog();
@@ -258,6 +315,7 @@ bot.dialog('lanAction', function (session) {
     		text = 'Details:\n\n	Name: '+details.name+'\n	Type: '+details.type+'\n	OutageDependency:'+details.OutageDependency+'\n	SubType: '+ details.SubType+'\n	Location: '+ details.Location;        
     
     		session.send(text);
+            session.endDialog();
     	}
     	else{
     		session.send('We cant get details for Server : %s you looking for', name);
@@ -295,5 +353,13 @@ bot.dialog('help', function (session, args, next) {
     session.endDialog("This is a bot that can help. <br/>Please say 'next' to continue");
 })
 .triggerAction({
-    matches: /^help$/i,
+    matches: /^help$/i
+});
+
+// Exit the session.
+bot.dialog('exit', function (session, args, next) {
+    session.endDialog("This is converstation is Ended.");
+})
+.triggerAction({
+    matches: /^(exit|Exit|End|end|stop|Stop)$/i
 });
