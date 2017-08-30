@@ -9,11 +9,16 @@
   "keywords": [
     "bot"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yaseerhaja/botapp.git"
+  },
   "author": "HajaMohaideen K",
   "license": "ISC",
   "dependencies": {
     "botbuilder": "^3.9.0",
     "microsoft-adaptivecards": "^0.6.0",
-    "restify": "^5.1.0"
+    "restify": "^5.1.0",
+    "dotenv-extended": "^1.0.4"
   }
 }

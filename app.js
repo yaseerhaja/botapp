@@ -1,145 +1,406 @@
-var restify = require('restify'),	
-	builder = require('./core');
+require('dotenv-extended').load();
 
+var restify = require('restify'),	
+    builder = require('./core');
+    
     //builder = require('botbuilder');
 
 // Setup Restify Server
 var server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
-   console.log('%s listening to %s', server.name, server.url); 
+   //console.log('%s listening to %s', server.name, server.url);   
+   console.log('Server is up and running');   
 });
 
 server.get(/^\/?.*/, restify.plugins.serveStatic({
     directory: __dirname
 }));
 
+
 // Create chat connector for communicating with the Bot Framework Service
 var connector = new builder.ChatConnector({
-    appId: 'edff87eb-a6c3-4dda-b778-41011657797d',//process.env.MICROSOFT_APP_ID,
-    appPassword: 'qW9XwmzZ42jibVkhois6sUj' //process.env.MICROSOFT_APP_PASSWORD
+    appId: process.env.MICROSOFT_APP_ID,
+    appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
 
 // Listen for messages from users 
 server.post('/api/messages', connector.listen());
 
+
+var menuItemsJson = [{
+    title: "Server",
+    subtitle: "You can view the status and you can manage start and stop state of server.",
+    text: "Few details about the server.",
+    img: "http://localhost:3978/client/img/servers.png"
+},{
+    title: "Database",
+    subtitle: "You can view the status and you can manage start and stop state of server.",
+    text: "Few details about the server.",
+    img: "http://localhost:3978/client/img/db.png"
+},{
+    title: "Lan",
+    subtitle: "You can view the status and you can manage start and stop state of server.",
+    text: "Few details about the server.",
+    img: "http://localhost:3978/client/img/lan-nw.jpg"
+},{
+    title: "Cluster",
+    subtitle: "You can view the status and you can manage start and stop state of server.",
+    text: "Few details about the server.",
+    img: "http://localhost:3978/client/img/cluster.png"
+}],    
+menuItems = { 
+                "Server": {
+                    item: "server"
+                },
+                "LAN": {
+                    item: "lan"
+                }
+            },
+server = {
+            "Details":{
+                item: "details",
+                data: {
+                    "KL12345": {
+                        name: "KL12345",
+                        type: "Software Instance",
+                        Location: "Amsterdam",
+                        OutageDependency : "N",
+                        SubType : "INTERNET SOFTWARE INSTANCE"
+                    }
+                }
+            },
+            "Status": {
+                item: "status",
+                data:{
+                    "KL12345": {
+                        name: "KL12345",
+                        state: "Started"
+                    }
+                }
+            },
+            "Start": {
+                item: "start"
+            },
+            "Stop": {
+                item: "stop"
+            }
+        },
+search = {
+            'contentType':'application/vnd.microsoft.card.adaptive',
+            'content':{
+                '$schema':'http://adaptivecards.io/schemas/adaptive-card.json',
+                'type':'AdaptiveCard',
+                'version':'1.0',
+                'body':[
+                    {
+                        'type':'Container',
+                        'speak':'Hello!Are you looking for a flight or a hotel?',
+                        'items':[
+                        {
+                            'type':'ColumnSet',
+                            'columns':[
+                                {
+                                    'type':'Column',
+                                    'size':'auto',
+                                    'items':[
+                                    {
+                                        'type':'Image',
+                                        'url':'https://placeholdit.imgix.net/~text?txtsize=65&txt=Adaptive+Cards&w=300&h=300',
+                                        'size':'medium',
+                                        'style':'person'
+                                    }
+                                    ]
+                                },
+                                {
+                                    'type':'Column',
+                                    'size':'stretch',
+                                    'items':[
+                                    {
+                                        'type':'TextBlock',
+                                        'text':'Hello!',
+                                        'weight':'bolder',
+                                        'isSubtle':true
+                                    },
+                                    {
+                                        'type':'TextBlock',
+                                        'text':'Are you looking for a flight or a hotel?',
+                                        'wrap':true
+                                    }
+                                    ]
+                                }
+                            ]
+                        }
+                        ]
+                    }
+                ],
+                'actions':[
+                    // Hotels Search form         
+                    {
+                        'type':'Action.ShowCard',
+                        'title':'Hotels',
+                        'speak':'Hotels',
+                        'card':{
+                        'type':'AdaptiveCard',
+                        'body':[
+                            {
+                                'type':'TextBlock',
+                                'text':'Welcome to the Hotels finder!',
+                                'speak':'Welcome to the Hotels finder!',
+                                'weight':'bolder',
+                                'size':'large'
+                            },
+                            {
+                                'type':'TextBlock',
+                                'text':'Please enter your destination:'
+                            },
+                            {
+                                'type':'Input.Text',
+                                'id':'destination',
+                                'speak':'Please enter your destination',
+                                'placeholder':'Miami, Florida',
+                                'style':'text'
+                            },
+                            {
+                                'type':'TextBlock',
+                                'text':'When do you want to check in?'
+                            },
+                            {
+                                'type':'Input.Date',
+                                'id':'checkin',
+                                'speak':'When do you want to check in?'
+                            },
+                            {
+                                'type':'TextBlock',
+                                'text':'How many nights do you want to stay?'
+                            },
+                            {
+                                'type':'Input.Number',
+                                'id':'nights',
+                                'min':1,
+                                'max':60,
+                                'speak':'How many nights do you want to stay?'
+                            }
+                        ],
+                        'actions':[
+                            {
+                                'type':'Action.Submit',
+                                'title':'Search',
+                                'speak':'Search',
+                                'data':{
+                                    'type':'hotelSearch'
+                                }
+                            }
+                        ]
+                        }
+                    },
+                    {
+                        'type':'Action.ShowCard',
+                        'title':'Flights',
+                        'speak':'Flights',
+                        'card':{
+                        'type':'AdaptiveCard',
+                        'body':[
+                            {
+                                'type':'TextBlock',
+                                'text':'Flights is not implemented =(',
+                                'speak':'Flights is not implemented',
+                                'weight':'bolder'
+                            }
+                        ]
+                        }
+                    }
+                ]
+            }
+    };
+
 // Receive messages from the user and respond by echoing each message back (prefixed with 'You said:')
 var bot = new builder.UniversalBot(connector, function(session){
-	var text = session.message.text,
-		name, action;
+	var text = session.message.text;  
+        
+    if (session.message && session.message.value) {
+        // A Card's Submit Action obj was received
+        processSubmitAction(session, session.message.value);
+        return;
+    }
 
 	if(text.startsWith("~S:") || text.startsWith("~L:")){
-		session.userData.selectionType = text.startsWith("~S:") ? 'server' : 'lan';
-
-		text = text.split(':')[1];
-
-        if(text.trim() !== ''){
-            name = text.split(' ')[0] || '';
-            action = text.split(' ')[1] || '';
-
-            if(name.trim()!== '' && action.trim()!== ''){
-                session.userData.serverName = name;
-                session.userData.action = action;
-
-                session.beginDialog(session.userData.selectionType === 'server' ? 'serverAction' : 'lanAction');
-            }
-            else{
-                session.send('Sorry!! I cant get your query. I need Server Name and Action to get you Details.. Type `shortcut` see the how to use command.');
-            }            
-        }
-        else{
-            session.send('Sorry!! I cant get your query. Please type `shortcut` to see list of action you can perform in bot..');
-        }			
+		processKeyCommand(session, text);			
 	}
-	else{
+	else{        
 		session.beginDialog('init');
 	}
 });
 
-
-
-var menuItemsJson = [{
-	title: "Server",
-	subtitle: "You can view the status and you can manage start and stop state of server.",
-	text: "Few details about the server.",
-	img: "http://localhost:3978/client/img/servers.png"
-},{
-	title: "Database",
-	subtitle: "You can view the status and you can manage start and stop state of server.",
-	text: "Few details about the server.",
-	img: "http://localhost:3978/client/img/db.png"
-},{
-	title: "Lan",
-	subtitle: "You can view the status and you can manage start and stop state of server.",
-	text: "Few details about the server.",
-	img: "http://localhost:3978/client/img/lan-nw.jpg"
-},{
-	title: "Cluster",
-	subtitle: "You can view the status and you can manage start and stop state of server.",
-	text: "Few details about the server.",
-	img: "http://localhost:3978/client/img/cluster.png"
-}
-];
-
-// Main menu
-var menuItems = { 
-	    "Server": {
-	        item: "server"
-	    },
-	    "LAN": {
-	        item: "lan"
-	    }
-	},
- 	server = {
-		"Details":{
-			item: "details",
-			data: {
-				"KL12345": {
-					name: "KL12345",
-					type: "Software Instance",
-					Location: "Amsterdam",
-					OutageDependency : "N",
-					SubType : "INTERNET SOFTWARE INSTANCE"
-				}
-			}
-		},
-		"Status": {
-	        item: "status",
-            data:{
-                "KL12345": {
-                    name: "KL12345",
-                    state: "Started"
-                }
-            }
-	    },
-	    "Start": {
-	        item: "start"
-	    },
-	    "Stop": {
-	    	item: "stop"
-	    }
-	};
-
-
 bot.dialog('init',[
     function (session) {       
-        session.beginDialog('greetings');
-        //session.beginDialog('mainMenuUX');
-    },
-    function (session) {        
-        session.beginDialog('askName');
-    },
-    function (session) {        
-        session.beginDialog('mainMenu');
+        session.beginDialog('greetings');        
     }
 ]);
 
 // Show Start up Message.
 bot.dialog('greetings', [
     function (session) {
-        session.send('Welcome to Bot Service. Here you can find All Server related information...');
-        session.endDialog();
-    }
+        var card =  greetingCard(session);        
+        var msg = new builder.Message(session).addAttachment(card);                
+        //session.send(msg).endDialog();
+        builder.Prompts.text(session, msg);
+    },
+    function(session, results){        
+        if(results.response === "Start"){
+            var card = aboutYouCard(); 
+            var msg = new builder.Message(session)
+                .addAttachment(card);
+            session.send(msg).endDialog();
+            //builder.Prompts.text(session, msg);
+        }
+    } 
 ]);
+
+function processKeyCommand(session, text){
+    var name, action;
+    session.userData.selectionType = text.startsWith("~S:") ? 'server' : 'lan';
+    
+    text = text.split(':')[1];
+
+    if(text.trim() !== ''){
+        name = text.split(' ')[0] || '';
+        action = text.split(' ')[1] || '';
+
+        if(name.trim()!== '' && action.trim()!== ''){
+            session.userData.serverName = name;
+            session.userData.action = action;
+
+            session.beginDialog(session.userData.selectionType === 'server' ? 'serverAction' : 'lanAction');
+        }
+        else{
+            session.send('Sorry!! I cant get your query. I need Server Name and Action to get you Details.. Type `shortcut` see the how to use command.');
+        }            
+    }
+    else{
+        session.send('Sorry!! I cant get your query. Please type `shortcut` to see list of action you can perform in bot..');
+    }
+}
+
+function processSubmitAction(session, value) {
+    var defaultErrorMessage = 'Please complete all parameters';    
+    switch (value.type) {
+        case 'aboutYou':
+            // aboutYou, validate parameters
+            if (validateAboutYou(value)) {
+                // proceed to search
+                session.beginDialog('listService', value);
+            } else {
+                session.send(defaultErrorMessage);
+            }           
+            break;    
+
+        default:
+            // A form data was received, invalid or incomplete since the previous validation did not pass
+            session.send(defaultErrorMessage);
+    }
+}
+
+function validateAboutYou(val){
+    // todo - form validator to be done
+    return true;
+}
+
+function greetingCard(session){
+    return new builder.ThumbnailCard(session)
+                .title('Hey!! Welcome to BotApp')
+                .subtitle('New way of accessing Infra Network Component details')
+                .text('Welcome to Bot Service. Here you can find All Server related information...\n\n At any point of conversion type following keywords.\n\n Exit - To Exit the conversation\n\n Help - To get help menu of botapp\n\n shortcut - shorcut commands for direct access of services')
+                .images([
+                    builder.CardImage.create(session, 'http://localhost:3978/client/img/chatbot.png')
+                ])
+                .buttons([                
+                    builder.CardAction.imBack(session, 'Start', "Get Started")
+                ]);
+}
+
+function aboutYouCard(){
+    return {        
+            'contentType':'application/vnd.microsoft.card.adaptive',
+            'content':{
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard",
+                "version": "0.5",
+                "body": [
+                    {
+                    "type": "ColumnSet",
+                    "columns": [
+                        {
+                        "type": "Column",
+                        "size": 2,
+                        "items": [
+                            {
+                            "type": "TextBlock",
+                            "text": "Tell us about yourself...",
+                            "weight": "bolder",
+                            "size": "large"
+                            },
+                            {
+                            "type": "TextBlock",
+                            "text": "We just need a few details to know About you!",
+                            "isSubtle": true,
+                            "wrap": true
+                            },
+                            {
+                            "type": "TextBlock",
+                            "text": "Don't worry, we'll never share or sell your information.",
+                            "isSubtle": true,
+                            "wrap": true,
+                            "size": "small"
+                            },
+                            {
+                            "type": "TextBlock",
+                            "text": "Your name",
+                            "wrap": true
+                            },
+                            {
+                            "type": "Input.Text",
+                            "id": "myName",
+                            "placeholder": "Last, First"
+                            },
+                            {
+                            "type": "TextBlock",
+                            "text": "Your email",
+                            "wrap": true
+                            },
+                            {
+                            "type": "Input.Text",
+                            "id": "myEmail",
+                            "placeholder": "youremail@example.com",
+                            "style": "email"
+                            }
+                        ]
+                        },
+                        {
+                        "type": "Column",
+                        "size": 1,
+                        "items": [
+                            {
+                            "type": "Image",
+                            "url": "http://localhost:3978/client/img/about-you-logo.jpg",
+                            "size": "auto"
+                            }
+                        ]
+                        }
+                    ]
+                    }
+                ],
+                "actions": [
+                    {
+                    "type": "Action.Submit",
+                    "title": "Submit",
+                    "data": {
+                        "type": "aboutYou"
+                    }
+                    }
+                ]
+                } 
+            };
+}
 
 // Ask the user for their name and greet them by name.
 bot.dialog('askName', [
@@ -216,8 +477,22 @@ bot.dialog('retry', [
     }
 ]);
 
+// Get General user input.
+bot.dialog('getUserInfo', [
+    function(session) {
+        var msg = new builder.Message(session)
+            .addAttachment(aboutYou);
+
+        builder.Prompts.text(session, msg);
+    },
+    function(session, results) {
+        session.send(results.response);
+        session.endDialog()
+    }
+]);
+
 // Add dialog to return main Menu in UX format
-bot.dialog('mainMenuUX', function (session) {
+bot.dialog('listService', function (session) {
     var msg = new builder.Message(session);
     var components = [];
     msg.attachmentLayout(builder.AttachmentLayout.carousel)
@@ -363,3 +638,4 @@ bot.dialog('exit', function (session, args, next) {
 .triggerAction({
     matches: /^(exit|Exit|End|end|stop|Stop)$/i
 });
+
