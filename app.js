@@ -8,13 +8,15 @@ var restify = require('restify'),
 // Setup Restify Server
 var server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
-   //console.log('%s listening to %s', server.name, server.url);   
+   //console.log('%s listening to %s', server.name, server.url);
+
    console.log('Server is up and running');   
 });
 
 server.get(/^\/?.*/, restify.plugins.serveStatic({
     directory: __dirname
 }));
+
 
 
 // Create chat connector for communicating with the Bot Framework Service
@@ -31,22 +33,22 @@ var menuItemsJson = [{
     title: "Server",
     subtitle: "You can view the status and you can manage start and stop state of server.",
     text: "Few details about the server.",
-    img: "http://localhost:3978/client/img/servers.png"
+    img: __dirname + "/client/img/servers.png"
 },{
     title: "Database",
     subtitle: "You can view the status and you can manage start and stop state of server.",
     text: "Few details about the server.",
-    img: "http://localhost:3978/client/img/db.png"
+    img: __dirname + "/client/img/db.png"
 },{
     title: "Lan",
     subtitle: "You can view the status and you can manage start and stop state of server.",
     text: "Few details about the server.",
-    img: "http://localhost:3978/client/img/lan-nw.jpg"
+    img: __dirname + "/client/img/lan-nw.jpg"
 },{
     title: "Cluster",
     subtitle: "You can view the status and you can manage start and stop state of server.",
     text: "Few details about the server.",
-    img: "http://localhost:3978/client/img/cluster.png"
+    img: __dirname + "/client/img/cluster.png"
 }],    
 menuItems = { 
                 "Server": {
@@ -311,7 +313,7 @@ function greetingCard(session){
                 .subtitle('New way of accessing Infra Network Component details')
                 .text('Welcome to Bot Service. Here you can find All Server related information...\n\n At any point of conversion type following keywords.\n\n Exit - To Exit the conversation\n\n Help - To get help menu of botapp\n\n shortcut - shorcut commands for direct access of services')
                 .images([
-                    builder.CardImage.create(session, 'http://localhost:3978/client/img/chatbot.png')
+                    builder.CardImage.create(session, __dirname + '/client/img/chatbot.png')
                 ])
                 .buttons([                
                     builder.CardAction.imBack(session, 'Start', "Get Started")
@@ -381,7 +383,7 @@ function aboutYouCard(){
                         "items": [
                             {
                             "type": "Image",
-                            "url": "http://localhost:3978/client/img/about-you-logo.jpg",
+                            "url": __dirname + "/client/img/about-you-logo.jpg",
                             "size": "auto"
                             }
                         ]
