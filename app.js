@@ -2,26 +2,20 @@ require('dotenv-extended').load();
 
 var restify = require('restify'),	
     builder = require('./core');
-
-const path = require('path');
     
     //builder = require('botbuilder');
 
 // Setup Restify Server
 var server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
-   //console.log('%s listening to %s', server.name, server.url);
-
+   //console.log('%s listening to %s', server.name, server.url);   
    console.log('Server is up and running');   
 });
 
-global.appRoot = path.resolve(__dirname);
-
-server.get(/\/client\/?.*/, restify.plugins.serveStatic({
-    directory: path.join(__dirname, 'client')
+server.get(/^\/?.*/, restify.plugins.serveStatic({
+    directory: __dirname
 }));
 
-console.log(appRoot);
 
 // Create chat connector for communicating with the Bot Framework Service
 var connector = new builder.ChatConnector({
@@ -32,29 +26,27 @@ var connector = new builder.ChatConnector({
 // Listen for messages from users 
 server.post('/api/messages', connector.listen());
 
-var dir = server.url;
-
 
 var menuItemsJson = [{
     title: "Server",
     subtitle: "You can view the status and you can manage start and stop state of server.",
     text: "Few details about the server.",
-    img: appRoot+ "/client/img/servers.png"
+    img: "https://botapp-cl.azurewebsites.net/client/img/servers.png"
 },{
     title: "Database",
     subtitle: "You can view the status and you can manage start and stop state of server.",
     text: "Few details about the server.",
-    img: appRoot+ "/client/img/db.png"
+    img: "https://botapp-cl.azurewebsites.net/client/img/db.png"
 },{
     title: "Lan",
     subtitle: "You can view the status and you can manage start and stop state of server.",
     text: "Few details about the server.",
-    img: appRoot+ "/client/img/lan-nw.jpg"
+    img: "https://botapp-cl.azurewebsites.net/client/img/lan-nw.jpg"
 },{
     title: "Cluster",
     subtitle: "You can view the status and you can manage start and stop state of server.",
     text: "Few details about the server.",
-    img: appRoot+ "/client/img/cluster.png"
+    img: "https://botapp-cl.azurewebsites.net/client/img/cluster.png"
 }],    
 menuItems = { 
                 "Server": {
@@ -319,7 +311,7 @@ function greetingCard(session){
                 .subtitle('New way of accessing Infra Network Component details')
                 .text('Welcome to Bot Service. Here you can find All Server related information...\n\n At any point of conversion type following keywords.\n\n Exit - To Exit the conversation\n\n Help - To get help menu of botapp\n\n shortcut - shorcut commands for direct access of services')
                 .images([
-                    builder.CardImage.create(session, appRoot+ '/client/img/chatbot.png')
+                    builder.CardImage.create(session, 'https://botapp-cl.azurewebsites.net/client/img/chatbot.png')
                 ])
                 .buttons([                
                     builder.CardAction.imBack(session, 'Start', "Get Started")
@@ -389,7 +381,7 @@ function aboutYouCard(){
                         "items": [
                             {
                             "type": "Image",
-                            "url": appRoot+ "/client/img/about-you-logo.jpg",
+                            "url": "https://botapp-cl.azurewebsites.net/client/img/about-you-logo.jpg",
                             "size": "auto"
                             }
                         ]
